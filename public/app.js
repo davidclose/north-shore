@@ -605,17 +605,17 @@
 
   // ================= SHIP PHOTOS (Wikimedia Commons, looked up by the page) =================
   // Freely licensed photos only, and only when the match is clear:
-  //  1. the ship's IMO number has its own Commons category (unambiguous), or
+  //  1. a file sits under the Commons category for the ship's IMO number (unambiguous), or
   //  2. a file is titled with the ship's full name, is filed as a vessel, and either the name
   //     is distinctive (two or more words, or has a number) or the file is tied to this coast.
   // Anything less certain keeps the plain boat icon. Results are remembered on this device.
-  var PHOTOS_KEY = 'north-shore-photos';
+  var PHOTOS_KEY = 'north-shore-photos-v2';   // v2: thumbnails moved to thumb.wikimedia.org; forget earlier misses
   var PHOTO_KEEP_MS = 30 * 86400000, PHOTO_RETRY_MS = 7 * 86400000;
   var photos = {}, photoBusy = {};
   var VESSEL_RE = /\b(ships?|vessels?|boats?|tugs?|tugboats?|ferry|ferries|trawlers?|tankers?|lifeboats?|dredgers?|freighters?|imo|mmsi)\b/i;
   var LOCAL_RE = /\b(tyne|tynemouth|shields|blyth|sunderland|newcastle|northumberland|whitley bay|river wear|cullercoats)\b/i;
   var COMMONS = 'https://commons.wikimedia.org/w/api.php?origin=*&format=json&formatversion=2&action=query' +
-    '&prop=imageinfo%7Ccategories&iiprop=url%7Cmime%7Cextmetadata&iiurlwidth=480' +
+    '&prop=imageinfo%7Ccategories&iiprop=url%7Cmime%7Cextmetadata&iiurlwidth=500' +
     '&iiextmetadatafilter=Artist%7CLicenseShortName%7CCategories%7CImageDescription&cllimit=max&clshow=!hidden';
 
   function words(s) { return ' ' + String(s || '').toLowerCase().replace(/\.[a-z0-9]{2,5}$/, '').replace(/[^a-z0-9]+/g, ' ').trim() + ' '; }
@@ -629,7 +629,7 @@
     var ii = pg && pg.imageinfo && pg.imageinfo[0];
     if (!ii || !/^image\/(jpeg|png)$/.test(ii.mime || '')) return null;
     var url = ii.thumburl || ii.url, page = ii.descriptionurl;
-    if (!/^https:\/\/upload\.wikimedia\.org\//.test(url || '') || !/^https:\/\/commons\.wikimedia\.org\//.test(page || '')) return null;
+    if (!/^https:\/\/(upload|thumb)\.wikimedia\.org\//.test(url || '') || !/^https:\/\/commons\.wikimedia\.org\//.test(page || '')) return null;
     var meta = ii.extmetadata || {};
     var artist = plainText(meta.Artist && meta.Artist.value).slice(0, 60);
     var licence = plainText(meta.LicenseShortName && meta.LicenseShortName.value).slice(0, 30);
@@ -650,7 +650,7 @@
 
   function searchCommons(ship) {
     var byImo = ship.imo
-      ? fetch(COMMONS + '&generator=categorymembers&gcmtype=file&gcmlimit=10&gcmtitle=' + encodeURIComponent('Category:IMO ' + ship.imo))
+      ? fetch(COMMONS + '&generator=search&gsrnamespace=6&gsrlimit=10&gsrsearch=' + encodeURIComponent('deepcategory:"IMO ' + ship.imo + '" filetype:bitmap'))
           .then(function (r) { return r.json(); })
           .then(function (j) { return bestOf(byIndex(j.query && j.query.pages)); })
       : Promise.resolve(null);
