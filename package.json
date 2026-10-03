@@ -1,0 +1,7 @@
+{
+  "name": "north-shore",
+  "version": "1.0.0",
+  "private": true,
+  "description": "North Shore — Whitley Bay weather, tide and live shipping",
+  "engines": { "node": "22.x" }
+}

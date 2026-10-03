@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#e8eeed" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b161b" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="North Shore">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<title>North Shore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Libre+Caslon+Text:ital@1&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<main class="gate" id="gate" hidden>
+  <h1>North Shore</h1>
+  <div class="horizon" aria-hidden="true">
+      <svg class="h-ship" viewBox="0 0 60 24"><path class="h-ship-shape" d="M2 16h56l-5 7H8z M14 16V9h16v7z M32 16v-4h10v4z M20 9V4h4v5z"/></svg>
+      <svg class="h-light" viewBox="0 0 120 58">
+        <path class="h-rock" d="M0 58 C10 48 24 45 40 44 L92 43 C104 44 114 50 120 58 Z"/>
+        <rect class="h-wall" x="22" y="34" width="34" height="11"/>
+        <path class="h-dark" d="M20 35 L39 27 L58 35 Z"/>
+        <path class="h-wall" d="M68 44 L71 10 H81 L84 44 Z"/>
+        <rect class="h-dark" x="70" y="4" width="12" height="7" rx="1"/>
+        <path class="h-dark" d="M69 5 L76 0 L83 5 Z"/>
+        <rect class="h-wall" x="84" y="36" width="16" height="8"/>
+      </svg>
+    </div>
+  <p>Enter the passcode to open the dashboard. This device will remember it.</p>
+  <form id="gate-form" autocomplete="off">
+    <input type="password" id="gate-input" aria-label="Passcode" placeholder="Passcode" autocomplete="current-password" required>
+    <button type="submit" id="gate-btn">Open</button>
+  </form>
+  <div class="gate-error" id="gate-error" role="alert"></div>
+</main>
+
+<div class="wrap" id="app" hidden>
+  <header class="masthead">
+    <div class="masthead-top">
+      <div>
+        <h1 class="masthead-title">North Shore</h1>
+        <div class="masthead-sub">Whitley Bay &middot; weather, tide &amp; shipping &middot; <span class="mono">55.04&deg;N 1.45&deg;W</span></div>
+      </div>
+      <div class="masthead-right">
+        <div class="date mono" id="clock-date">&mdash;</div>
+        <div id="clock-time" class="mono">&mdash;</div>
+        <button type="button" class="refresh-btn" id="refresh-btn"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="refresh-label">Refresh</span></button>
+        <div class="refresh-note" id="refresh-note" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="horizon" aria-hidden="true">
+      <svg class="h-ship" viewBox="0 0 60 24"><path class="h-ship-shape" d="M2 16h56l-5 7H8z M14 16V9h16v7z M32 16v-4h10v4z M20 9V4h4v5z"/></svg>
+      <svg class="h-light" viewBox="0 0 120 58">
+        <path class="h-rock" d="M0 58 C10 48 24 45 40 44 L92 43 C104 44 114 50 120 58 Z"/>
+        <rect class="h-wall" x="22" y="34" width="34" height="11"/>
+        <path class="h-dark" d="M20 35 L39 27 L58 35 Z"/>
+        <path class="h-wall" d="M68 44 L71 10 H81 L84 44 Z"/>
+        <rect class="h-dark" x="70" y="4" width="12" height="7" rx="1"/>
+        <path class="h-dark" d="M69 5 L76 0 L83 5 Z"/>
+        <rect class="h-wall" x="84" y="36" width="16" height="8"/>
+      </svg>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- WEATHER CARD -->
+    <section class="card" id="wx-card">
+      <div class="card-head">
+        <div>
+          <span class="card-eyebrow">Right now</span>
+          <h2 class="card-title">Weather</h2>
+        </div>
+        <span class="live-pill" id="wx-live"><span class="live-dot stale" id="wx-dot"></span><span id="wx-live-text">connecting&hellip;</span></span>
+      </div>
+      <div id="wx-current-slot">
+        <div class="wx-hero">
+          <div class="skel" style="width:56px;height:56px;border-radius:50%;"></div>
+          <div style="flex:1">
+            <div class="skel" style="width:90px;height:38px;margin-bottom:6px;"></div>
+            <div class="skel" style="width:140px;height:12px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="stat-row" id="wx-stats">
+        <div class="stat-tile"><div class="skel" style="width:60%;height:9px;margin-bottom:6px;"></div><div class="skel" style="width:80%;height:14px;"></div></div>
+        <div class="stat-tile"><div class="skel" style="width:60%;height:9px;margin-bottom:6px;"></div><div class="skel" style="width:80%;height:14px;"></div></div>
+        <div class="stat-tile"><div class="skel" style="width:60%;height:9px;margin-bottom:6px;"></div><div class="skel" style="width:80%;height:14px;"></div></div>
+        <div class="stat-tile"><div class="skel" style="width:60%;height:9px;margin-bottom:6px;"></div><div class="skel" style="width:80%;height:14px;"></div></div>
+      </div>
+      <div id="wx-forecast-slot">
+        <div class="forecast-strip">
+          <div class="skel" style="height:78px;"></div><div class="skel" style="height:78px;"></div><div class="skel" style="height:78px;"></div>
+          <div class="skel" style="height:78px;"></div><div class="skel" style="height:78px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIDE CARD -->
+    <section class="card" id="td-card">
+      <div class="card-head">
+        <div>
+          <span class="card-eyebrow">Sea level</span>
+          <h2 class="card-title">Tide</h2>
+        </div>
+        <span class="snap-pill" id="td-snap"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="td-snap-text">loading&hellip;</span></span>
+      </div>
+      <div id="td-body">
+        <div class="tide-hero">
+          <div class="skel" style="width:90px;height:34px;"></div>
+          <div class="skel" style="width:70px;height:28px;"></div>
+        </div>
+        <div class="skel" style="height:64px;margin-top:10px;"></div>
+      </div>
+      <div class="tide-times" id="td-times">
+        <div class="stat-tile"><div class="skel" style="width:60%;height:9px;margin-bottom:6px;"></div><div class="skel" style="width:80%;height:14px;"></div></div>
+        <div class="stat-tile"><div class="skel" style="width:60%;height:9px;margin-bottom:6px;"></div><div class="skel" style="width:80%;height:14px;"></div></div>
+      </div>
+      <div class="footnote">Modelled tide height against mean sea level. A guide only, not for navigation.</div>
+    </section>
+
+    <!-- SHIPS CARD -->
+    <section class="card" id="sh-card">
+      <div class="card-head">
+        <div>
+          <span class="card-eyebrow">Live AIS</span>
+          <h2 class="card-title">Ships off the bay</h2>
+        </div>
+        <span class="snap-pill" id="sh-snap"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="sh-snap-text">waiting&hellip;</span></span>
+      </div>
+      <div class="ship-list" id="sh-list">
+        <div class="ship"><div class="skel" style="width:30px;height:30px;border-radius:50%;"></div><div style="flex:1"><div class="skel" style="width:55%;height:12px;margin-bottom:5px;"></div><div class="skel" style="width:40%;height:10px;"></div></div></div>
+        <div class="ship"><div class="skel" style="width:30px;height:30px;border-radius:50%;"></div><div style="flex:1"><div class="skel" style="width:60%;height:12px;margin-bottom:5px;"></div><div class="skel" style="width:35%;height:10px;"></div></div></div>
+        <div class="ship"><div class="skel" style="width:30px;height:30px;border-radius:50%;"></div><div style="flex:1"><div class="skel" style="width:50%;height:12px;margin-bottom:5px;"></div><div class="skel" style="width:45%;height:10px;"></div></div></div>
+      </div>
+    </section>
+
+    <!-- MAP CARD -->
+    <section class="card" id="mp-card">
+      <div class="card-head">
+        <div>
+          <span class="card-eyebrow">Live AIS</span>
+          <h2 class="card-title">Chart</h2>
+        </div>
+        <span class="snap-pill" id="mp-snap"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="mp-snap-text">waiting&hellip;</span></span>
+      </div>
+      <div class="chart-wrap" id="mp-chart">
+        <div class="skel" style="height:220px;"></div>
+      </div>
+      <div class="ship-detail" id="mp-detail" aria-live="polite"><div class="sd-hint">Hover or tap a ship — on the chart or in the list — for its details.</div></div>
+      <div class="footnote">Bearing &amp; distance from Whitley Bay, from live AIS. Coastline and place names from OpenStreetMap; the upper Tyne is drawn approximately.</div>
+    </section>
+  </div>
+
+  <div class="swap-note">
+    <b>Where this comes from</b> &mdash; Weather and tide come from the free Open-Meteo forecast and refresh every time you open the page, every 15 minutes while it stays open, and whenever you press Refresh. Ships come live from your aisstream.io AIS feed: the page listens for about five minutes after you open it, then checks again every few minutes. Moving ships show up within seconds; ships at anchor or moored only report every three minutes, so they can take a little longer. Ship photos are freely licensed pictures from Wikimedia Commons, shown only when the match to the ship is clear. Your feed key stays on the server and never reaches this page.
+  </div>
+
+  <footer class="page-footer">
+    <span>Live while it&rsquo;s open &middot; <button type="button" class="link-btn" id="lock-btn">Forget passcode on this device</button></span>
+    <span id="footer-updated">&nbsp;</span>
+  </footer>
+</div>
+
+<script src="/app.js" defer></script>
+</body>
+</html>
